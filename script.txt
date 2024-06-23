@@ -1,0 +1,65 @@
+// Game state
+let board = ['', '', '', '', '', '', '', '', ''];
+let currentPlayer = 'X'; // X goes first
+
+// DOM elements
+const cells = document.querySelectorAll('.cell');
+const resetButton = document.getElementById('reset-button');
+
+// Event listeners
+cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+resetButton.addEventListener('click', resetGame);
+
+// Handle cell click
+function handleCellClick() {
+    const cellIndex = parseInt(this.dataset.index);
+    if (board[cellIndex] === '') {
+        board[cellIndex] = currentPlayer;
+        this.textContent = currentPlayer;
+        checkGameStatus();
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X'; // Switch turn
+    }
+}
+
+// Check for a winner or a tie
+function checkGameStatus() {
+    // Winning combinations (rows, columns, diagonals)
+    const winConditions = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+        [0, 4, 8], [2, 4, 6] // diagonals
+    ];
+
+    // Check for a win
+    for (let condition of winConditions) {
+        const [a, b, c] = condition;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            // Highlight winning cells
+            cells[a].classList.add('winner');
+            cells[b].classList.add('winner');
+            cells[c].classList.add('winner');
+            // Disable further clicks
+            cells.forEach(cell => cell.removeEventListener('click', handleCellClick));
+            return;
+        }
+    }
+
+    // Check for a tie
+    if (!board.includes('')) {
+        // It's a tie
+        cells.forEach(cell => cell.style.backgroundColor = '#f8d7da'); // Change background color for tie
+    }
+}
+
+// Reset the game
+function resetGame() {
+    board = ['', '', '', '', '', '', '', '', ''];
+    currentPlayer = 'X';
+    cells.forEach(cell => {
+        cell.textContent = '';
+        cell.classList.remove('winner');
+        cell.style.backgroundColor = '#f0f0f0'; // Reset cell background color
+    });
+    // Add event listeners back after reset
+    cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+}
